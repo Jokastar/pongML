@@ -1,11 +1,14 @@
 let classifier; 
 let video;
-let isLoading = false;
-let msg; 
 let label = "label";
+let featureExtractor; 
+let classifer; 
+let knn; 
+let ready; 
 
 function preload(){
-    img = loadImage("/img/bird.jpg");
+    featureExtractor = ml5.featureExtractor('MobileNet', modelReady);
+    ; 
 }
 
 function setup(){
@@ -15,47 +18,79 @@ function setup(){
     video = createCapture(VIDEO);
     video.size(width, height); // Set video size to canvas dimensions
     video.hide(); 
+    label = "need training data" 
+    knn = ml5.KNNClassifier()
 
-    msg = createDiv(`result is loading...`);
-    msg.hide(); 
+}
+function mousePressed(){
+    const logits = featureExtractor.infer(video)
 
-    isLoading = true;
-    classifier = ml5.imageClassifier("MobileNet", video, modelReady);  
+    knn.classify(logits, (error, results)=>{
+        if(error){
+            console.log(error)
+        }else{
+            label = results.label
+            console.log(results)
+        }
+    })
 }
 
-function draw(){
-    background(220); // Clear background
+function keyPressed(){
+    const logits = featureExtractor.infer(video); 
 
-    if (isLoading) {
-        // Show the message if isLoading is true
-        msg.show();
-    } else {
-        // Hide the message if isLoading is false
-        msg.hide();
+    if(key == "u"){
+        knn.addExample(logits, "up")
+        console.log("up")
+        label="up"
+    }else if(key == "d"){
+        knn.addExample(logits, "down")
+        console.log("down")
+        label="down"
+    }else if(key == "n"){
+        knn.addExample(logits, "neutral")
+        console.log("neutral")
+        label="neutral"
     }
+}
+
+
+function draw(){
+    background(0); // Clear background
 
     // Display video feed
     image(video, 0, 0, width, height);
 
     // Display label
-    fill(0);
+    fill(0, 255, 0);
     textSize(24); // Set text size
     textAlign(LEFT, BOTTOM); // Set text alignment to bottom-left
     text(label, 10, height - 10); // Position label at bottom left corner
+
+    if(!ready && knn.getNumLabels() > 0){
+        goClassify()
+        ready = true; 
+    }
 }
 
-function gotResult(error, results){
-    if(error){
-        console.error(error);
-    } else {
-        console.log(results);
-        isLoading = false; 
-        label = results[0].label; // Update label with new result
-        classifier.classify(gotResult);
-    }
+function videoReady(){
+    console.log("video is ready")
+
 }
 
 function modelReady(){
     console.log("the model is ready"); 
-    classifier.classify(gotResult);
+}
+
+function goClassify(){
+    const logits = featureExtractor.infer(video)
+
+    knn.classify(logits, (error, results)=>{
+        if(error){
+            console.log(error)
+        }else{ 
+            label = results.label
+            goClassify()
+        }
+    })
+
 }
