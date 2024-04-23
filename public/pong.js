@@ -1,19 +1,16 @@
 WIDTH = 600; 
 HEIGHT = 400;
 let Player1; 
-let pressedKey; 
-
+let ball; 
  
 
 function setup(){
     createCanvas(WIDTH, HEIGHT)
     textSize(32);
-  
     Player1 = new Paddle(0, 100);
+    ball = new Ball(WIDTH / 2, HEIGHT / 2); 
 
 }
-
-
 function draw(){
     background(0);
     
@@ -25,6 +22,8 @@ function draw(){
         }
     }
 
+    ball.update(); 
+    ball.draw();
     Player1.draw()
 
 }
