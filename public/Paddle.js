@@ -4,7 +4,7 @@ class Paddle{
         this.y = y;
         this.width = 10;
         this.height = 50;   
-        this.speed = 5
+        this.speed = 8
     }
 
     move_up(){
