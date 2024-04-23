@@ -19,20 +19,6 @@ function setup(){
     video.size(width, height); // Set video size to canvas dimensions
     video.hide(); 
     label = "need training data" 
-    knn = ml5.KNNClassifier()
-
-}
-function mousePressed(){
-    const logits = featureExtractor.infer(video)
-
-    knn.classify(logits, (error, results)=>{
-        if(error){
-            console.log(error)
-        }else{
-            label = results.label
-            console.log(results)
-        }
-    })
 }
 
 function keyPressed(){
@@ -50,6 +36,9 @@ function keyPressed(){
         knn.addExample(logits, "neutral")
         console.log("neutral")
         label="neutral"
+    }else if (key =="s"){
+        knn.save("model.json")
+        //save(knn, "model.json") once the model trained 
     }
 }
 
@@ -72,13 +61,13 @@ function draw(){
     }
 }
 
-function videoReady(){
-    console.log("video is ready")
-
-}
-
 function modelReady(){
-    console.log("the model is ready"); 
+    console.log("the MobileNet is ready"); 
+    knn = ml5.KNNClassifier()
+    /* knn.load("model.json", ()=>{
+        console.log("knn is ready")
+        goClassify()
+    }) once the model trained */
 }
 
 function goClassify(){
