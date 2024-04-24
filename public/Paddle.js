@@ -3,8 +3,8 @@ class Paddle{
         this.x = x; 
         this.y = y;
         this.width = 10;
-        this.height = 50;   
-        this.speed = 8
+        this.height = 70;   
+        this.speed = 5
     }
 
     move_up(){
