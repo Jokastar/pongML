@@ -1,12 +1,15 @@
 class Ball{
-    constructor(x, y, screen_height){
+    constructor(x, y, screen_height, screen_width){
         this.x = x; 
         this.y = y;
+        this.init_x = x; 
+        this.init_y = y; 
         this.width = 10;
         this.height = 10; 
-        this.dx = -((Math.random() * 2) + 3); // output number between 4 and 6 ; 
-        this.dy =  -((Math.random() * 2) + 4)
-        this.screen_height = screen_height  
+        this.dx = ((Math.random() * 2) + 6); // output number between 4 and 6 ; 
+        this.dy =  ((Math.random() * 2) + 6)
+        this.screen_height = screen_height; 
+        this.screen_width = screen_width;   
 
     }
 
@@ -57,7 +60,19 @@ class Ball{
         return (Math.random() * 6) + 2
     }
 
-    reset(winner){}
+    point_scored(){
+         if (this.x <= 0 || this.x >= this.screen_width) return true; 
+         return false; 
+    }
+
+    reset(winner){
+
+        this.x = this.init_x; 
+        this.y = this.init_y; 
+        this.dy = this.getRandomVelocity(); 
+        this.dx = winner === "player1" ? -1 * this.getRandomVelocity() : this.getRandomVelocity();
+        console.log(this.x, this.y, this.dx)
+    }
 
     update(){
         this.x += this.dx; 
