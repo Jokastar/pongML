@@ -1,10 +1,10 @@
 class Paddle{
-    constructor(x, y){
+    constructor(x, y, paddle_height){
         this.x = x; 
         this.y = y;
         this.width = 10;
-        this.height = 70;   
-        this.speed = 5
+        this.height = paddle_height;   
+        this.speed = 8
     }
 
     move_up(){
@@ -22,5 +22,14 @@ class Paddle{
         rect(this.x, this.y, this.width, this.height); 
     }
 
+    updateSize(x, y, height) {
+        this.x = x;
+        this.y = y;
+        this.height = height;
+    }
 
+    
 }
+
+    
+

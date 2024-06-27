@@ -1,7 +1,5 @@
-
 let WIDTH;
 let HEIGHT; 
-
 let Player1;
 let Player2;
 let ball; 
@@ -9,62 +7,61 @@ let player1_score;
 let player2_score; 
 let state;   
 let winner;
-
-let knn; 
-let featureExtractor; 
-let label;
+let handDetection;
 let video;  
- 
+
+function preload(){
+    handDetection = new HandDetection();
+    handDetection.preload(); 
+}
 
 function setup(){
-    WIDTH = 800; 
-    HEIGHT = 400;
-    createCanvas(WIDTH, HEIGHT)
+    WIDTH = windowWidth; 
+    HEIGHT = windowHeight;
 
+    createCanvas(WIDTH, HEIGHT);
+
+    // Video element for detecting hand movement
     video = createCapture(VIDEO);
-    video.size(1200, 400); 
-    video.hide(); 
-    
+    video.size(WIDTH, HEIGHT);
+    video.hide();
+    handDetection.setup(video); 
 
-    featureExtractor = ml5.featureExtractor('MobileNet', modelReady);
-    ; 
-
-    Player1 = new Paddle(0, 100);
-    Player2 = new Paddle(WIDTH - 10, 100);
+    // Initialize game variables
+    Player1 = new Paddle(0, HEIGHT - 100, 100);
+    Player2 = new Paddle(WIDTH - 10, 0, HEIGHT);
     player1_score = 0; 
     player2_score = 0;
-    ball = new Ball((WIDTH/2), (HEIGHT/2), HEIGHT, WIDTH); 
-    state = "didacticiel"
-    label = "machine learning loading ..."
- 
+    ball = new Ball((WIDTH / 2), (HEIGHT / 2), HEIGHT, WIDTH); 
+    state = "didacticiel";
 }
+
 function draw(){
     background(0); 
-
     fill(0, 255, 0);
     textSize(16); // Set text size
     textAlign(LEFT, BOTTOM); // Set text alignment to bottom-left
-    text(label, 10, height - 10); // Position label at bottom left corner
-
     fill(255);
+    
     switch(state){
         case "didacticiel":
-            Player1.draw()
+            Player1.draw();
 
             textSize(14);
             text("Game didacticiel", ((WIDTH / 3)), 20);
-            text("Rise your left hand to push down the paddle", ((WIDTH / 3)), 40);
-            text("Rise your right hand to push up the paddle", ((WIDTH / 3)), 60)
-            text("Remove your both hand to stay neutral", ((WIDTH / 3)), 80)
-            text("Press 'r' when ready to play", ((WIDTH / 3)), HEIGHT - 100);
+            text("Raise your left hand to push down the paddle", ((WIDTH / 3)), 40);
+            text("Raise your right hand to push up the paddle", ((WIDTH / 3)), 60);
+            text("Remove your both hands to stay neutral", ((WIDTH / 3)), 80);
+            text("hands: " + handDetection.hands, ((WIDTH / 3)), HEIGHT - 150);
+            text("Press 'S' when ready to Start", ((WIDTH / 3)), HEIGHT - 100);
 
-            if (label == "up"){
-                Player1.move_up()
-            }else if(label == "down"){
-                Player1.move_down(HEIGHT); 
+            if (handDetection.hands.toLowerCase() === "right") {
+                Player1.move_up();
+            } else if (handDetection.hands.toLowerCase() === "left") {
+                Player1.move_down(HEIGHT);
             }
 
-            if(keyIsPressed && key === "r"){
+            if(keyIsPressed && key === "s"){
                 state = "init"; 
             }
             break; 
@@ -74,7 +71,7 @@ function draw(){
             player2_score = 0;
             winner = ""; 
             textSize(20);
-            text("Press 'S' to play", ((WIDTH / 3) + 50), 50);
+            text("Press 'S' to start", ((WIDTH / 3) + 50), 50);
 
             textSize(60);
             text(player1_score, WIDTH / 3, 150);
@@ -98,18 +95,11 @@ function draw(){
             Player2.draw(); 
             Player1.draw();
 
-            if (label == "up"){
-                Player1.move_up()
-            }else if(label == "down"){
-                Player1.move_down(HEIGHT); 
+            if (handDetection.hands.toLowerCase() === "right") {
+                Player1.move_up();
+            } else if (handDetection.hands.toLowerCase() === "left") {
+                Player1.move_down(HEIGHT);
             }
-
-            if(keyIsPressed && key == "o"){
-                Player2.move_up();
-            }else if(keyIsPressed && key == "l"){
-                Player2.move_down(HEIGHT);  
-            }
-
          
             if(ball.point_scored()){
                 if(ball.x < 0){
@@ -156,37 +146,25 @@ function draw(){
             text(player2_score, WIDTH - (WIDTH / 3), 100);
 
             textSize(32);
-            text("press SPACE to restart", WIDTH/3, HEIGHT - 100);
-            ball.reset("")
+            text("press SPACE to restart", WIDTH / 3, HEIGHT - 100);
+            ball.reset("");
             
             if(keyIsPressed && key === " "){
                 state = "init";
             }
             break; 
-    } 
+    }
 }
 
-function modelReady(){
-    console.log("the MobileNet is ready"); 
+function windowResized() {
+    WIDTH = windowWidth;
+    HEIGHT = windowHeight;
+    resizeCanvas(WIDTH, HEIGHT);
 
-    knn = ml5.KNNClassifier();
-
-    knn.load("model.json", ()=>{
-        console.log("knn is ready")
-        goClassify()
-    })
+    // Update paddle and ball positions/sizes if needed
+    Player1.updateSize(0, HEIGHT - 100, 100);
+    Player2.updateSize(WIDTH - 10, 0, HEIGHT);
+    ball.updateSize(WIDTH, HEIGHT);
 }
 
-function goClassify(){
-    const logits = featureExtractor.infer(video)
 
-    knn.classify(logits, (error, results)=>{
-        if(error){
-            console.log(error)
-        }else{ 
-            label = knn.mapStringToIndex[results.label]
-            goClassify()
-        }
-    })
-
-}

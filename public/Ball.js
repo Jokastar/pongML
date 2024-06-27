@@ -6,8 +6,8 @@ class Ball{
         this.init_y = y; 
         this.width = 10;
         this.height = 10; 
-        this.dx = ((Math.random() * 2) + 1); // output number between 4 and 6 ; 
-        this.dy =  ((Math.random() * 2) + 1)
+        this.dx = ((Math.random() * 4) + 2); // output number between 4 and 6 ; 
+        this.dy =  ((Math.random() * 4) + 2)
         this.screen_height = screen_height; 
         this.screen_width = screen_width;   
 
@@ -57,7 +57,7 @@ class Ball{
         }
     }
     getRandomVelocity(){
-        return (Math.random() * 2) + 1
+        return (Math.random() * 4) + 2
     }
 
     point_scored(){
@@ -82,6 +82,11 @@ class Ball{
 
     draw(){
         rect(this.x, this.y, this.width, this.height); 
+    }
+
+    updateSize(canvasWidth, canvasHeight) {
+        this.canvasWidth = canvasWidth;
+        this.canvasHeight = canvasHeight;
     }
 
 }
