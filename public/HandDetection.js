@@ -26,7 +26,7 @@ class HandDetection {
                     hands = "left";
                 }
             
-                if (confidence > 0.9) {
+                if (confidence > 0.7) {
                     this._hands = hands;
                 } else {
                     this._hands = "neutral";

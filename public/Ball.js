@@ -12,6 +12,7 @@ class Ball{
         this.screen_width = screen_width;   
 
     }
+    
 
     edges(){
 
@@ -85,8 +86,9 @@ class Ball{
     }
 
     updateSize(canvasWidth, canvasHeight) {
-        this.canvasWidth = canvasWidth;
-        this.canvasHeight = canvasHeight;
+        this.screen_width = canvasWidth;
+        this.screen_height = canvasHeight
+        
     }
 
 }
