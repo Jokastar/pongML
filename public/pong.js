@@ -9,11 +9,13 @@ let player2_score;
 let winner;
 let handDetection;
 let video;
-let stateMachine;    // State machine
+let stateMachine;
+let myFont;     // State machine
 
 function preload() {
   handDetection = new HandDetection();
   handDetection.preload();
+  myFont = loadFont("./assets/fonts/ConsidermevexedRegular-ExLe.ttf");
 }
 
 function setup() {
@@ -22,20 +24,24 @@ function setup() {
 
   createCanvas(WIDTH, HEIGHT);
 
-  // Video element for detecting hand movement
+  //text parameters
+  textFont(myFont)
+  textAlign(CENTER, CENTER);
+
+  //Video element for detecting hand movement
   video = createCapture(VIDEO);
   video.size(WIDTH, HEIGHT);
   video.hide();
   handDetection.setup(video);
 
-  // Initialize game variables
-  Player1 = new Paddle(0, HEIGHT - 100, 100);
-  Player2 = new Paddle(WIDTH - 10, 0, HEIGHT);
+  //Initialize game variables
+  Player1 = new Paddle(5, HEIGHT - 100, 100, {});
+  Player2 = new Paddle(WIDTH  - 10, 0, HEIGHT, { top: '#0000FF', bottom: '#000080' });
   player1_score = 0;
   player2_score = 0;
   ball = new Ball((WIDTH / 2), (HEIGHT / 2), HEIGHT, WIDTH);
 
-  // Shared data object
+  //Shared data object
   const sharedData = {
     WIDTH,
     HEIGHT,
@@ -46,12 +52,22 @@ function setup() {
     player2_score,
     winner,
     handDetection,
-    playerName: ""
+    playerName: "",
+    selectedColors:"",
+    field: loadImage("./assets/images/tennis-field.svg")
   };
 
   // Initialize state machine with shared data
   stateMachine = new StateMachine(sharedData);
   stateMachine.changeState("start");
+}
+
+function mouseMoved() {
+  stateMachine.currentState?.mouseMoved(mouseX, mouseY);
+}
+
+function mousePressed() {
+  stateMachine.currentState?.mousePressed(mouseX, mouseY);
 }
 
 function draw() {
