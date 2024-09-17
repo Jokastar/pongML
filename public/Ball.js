@@ -4,16 +4,15 @@ class Ball{
         this.y = y;
         this.init_x = x; 
         this.init_y = y; 
-        this.width = 10;
-        this.height = 10; 
-        this.dx = ((Math.random() * 4) + 2); // output number between 4 and 6 ; 
-        this.dy =  ((Math.random() * 4) + 2)
+        this.width = 15;
+        this.height = 15; 
+        this.dx = ((Math.random() * 4) + 4); // output number between 4 and 6 ; 
+        this.dy =  ((Math.random() * 4) + 4)
         this.screen_height = screen_height; 
         this.screen_width = screen_width;   
 
     }
     
-
     edges(){
 
         if(this.y < 0){
@@ -39,14 +38,14 @@ class Ball{
         // Handle collision with Player1
         if (paddle.x < 1) {
             this.x = paddle.x + paddle.width;
-            this.dx *= -1.02;
+            this.dx *= -1.05;
 
           }
     
           // Handle collision with Player2
           if (paddle.x > 1) {
             this.x = paddle.x - this.width;
-            this.dx *= -1.02;
+            this.dx *= -1.05;
 
           }
 
@@ -58,7 +57,7 @@ class Ball{
         }
     }
     getRandomVelocity(){
-        return (Math.random() * 4) + 2
+        return (Math.random() * 4) + 4
     }
 
     point_scored(){
@@ -82,13 +81,9 @@ class Ball{
     }
 
     draw(){
-        rect(this.x, this.y, this.width, this.height); 
-    }
-
-    updateSize(canvasWidth, canvasHeight) {
-        this.screen_width = canvasWidth;
-        this.screen_height = canvasHeight
+        rectMode(CORNER)
         
+        rect(this.x, this.y, this.width, this.height); 
     }
 
 }

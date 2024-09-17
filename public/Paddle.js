@@ -1,33 +1,26 @@
 class Paddle {
-    constructor(x, y, paddle_height, selectedColors) {
+    constructor(x, y) {
       this.x = x;
       this.y = y;
-      this.width = 40;
-      this.height = paddle_height;
-      this.speed = 8;
-      this.selectedColors = selectedColors;
+      this.init_y = y
+      this.width = 20;
+      this.height = 50;
+      this.speed = 10;
       this.name = "CPU"
-       // Array of two colors
     }
   
     move_up() {
-      this.y = max(this.y - this.speed, 0);
+      this.y = max((this.y - this.speed) , 0);
     }
   
     move_down(height) {
-      this.y = min(this.y + this.speed, height - this.height);
+      this.y = min((this.y + this.speed), (height - this.height));
     }
   
     draw() {
-      // Width of each section of the paddle (half of the combined width)
-      const sectionWidth = this.width / 2;
-  
       // Draw the first rectangle with the first selected color
-      fill(this.selectedColors.bottom);
-      rect(this.x, this.y, sectionWidth, this.height);
-      // Draw the second rectangle with the second selected color, next to the first one
-      fill(this.selectedColors.top);
-      rect(this.x + sectionWidth, this.y, sectionWidth, this.height);
+      rectMode(CORNER)
+      rect(this.x, this.y, this.width, this.height);
     }
   
     updateSize(x, y, height) {
@@ -35,6 +28,25 @@ class Paddle {
       this.y = y;
       this.height = height;
     }
+    initYPosition() {
+      // Determine the difference between the current and initial Y positions
+      const deltaY = this.init_y - this.y;
+  
+      // If the player is already at the initial position, no need to move
+      if (deltaY === 0) return;
+  
+      // Determine the direction and magnitude of movement
+      const direction = deltaY > 0 ? 1 : -1;
+      const stepSize = this.speed;  // Use a smaller step size
+  
+      // Move towards the initial position
+      while (Math.abs(this.init_y - this.y) > stepSize) {
+          this.y += stepSize * direction;
+      }
+  
+      // Ensure the final position matches init_y exactly
+      this.y = this.init_y;
+  }
   }
   
     

@@ -1,4 +1,3 @@
-
 let WIDTH;
 let HEIGHT;
 let Player1;
@@ -10,19 +9,21 @@ let winner;
 let handDetection;
 let video;
 let stateMachine;
-let myFont;     // State machine
+let myFont;
 
 function preload() {
   handDetection = new HandDetection();
   handDetection.preload();
   myFont = loadFont("./assets/fonts/ConsidermevexedRegular-ExLe.ttf");
+
+  
 }
 
 function setup() {
-  WIDTH = windowWidth;
-  HEIGHT = windowHeight;
-
-  createCanvas(WIDTH, HEIGHT);
+  //create canvas
+  WIDTH = 800;
+  HEIGHT = 500;
+  createCanvas(WIDTH, HEIGHT)
 
   //text parameters
   textFont(myFont)
@@ -35,8 +36,8 @@ function setup() {
   handDetection.setup(video);
 
   //Initialize game variables
-  Player1 = new Paddle(5, HEIGHT - 100, 100, {});
-  Player2 = new Paddle(WIDTH  - 10, 0, HEIGHT, { top: '#0000FF', bottom: '#000080' });
+  Player1 = new Paddle(0,(HEIGHT - 150));
+  Player2 = new Paddle((WIDTH - 20), 100)
   player1_score = 0;
   player2_score = 0;
   ball = new Ball((WIDTH / 2), (HEIGHT / 2), HEIGHT, WIDTH);
@@ -54,12 +55,20 @@ function setup() {
     handDetection,
     playerName: "",
     selectedColors:"",
-    field: loadImage("./assets/images/tennis-field.svg")
+    field: loadImage("./assets/images/tennis-field.svg"),
+    detectHandMovement: function () {
+      if (handDetection.hands.toLowerCase() === "right") {
+        Player1.move_up();
+      } else if (handDetection.hands.toLowerCase() === "left") {
+        Player1.move_down(HEIGHT);
+      }
+    }
   };
+  
 
   // Initialize state machine with shared data
   stateMachine = new StateMachine(sharedData);
-  stateMachine.changeState("start");
+  stateMachine.changeState("start"); 
 }
 
 function mouseMoved() {
@@ -75,14 +84,4 @@ function draw() {
   stateMachine.draw();
 }
 
-function windowResized() {
-  WIDTH = windowWidth;
-  HEIGHT = windowHeight;
-  resizeCanvas(WIDTH, HEIGHT);
-  if (Player1 || Player2) {
-    // Update paddle and ball positions/sizes if needed
-    Player1.updateSize(0, HEIGHT - 100, 100);
-    Player2.updateSize(WIDTH - 10, 0, HEIGHT);
-    ball.updateSize(WIDTH, HEIGHT);
-  }
-}
+

@@ -1,3 +1,4 @@
+
 class StateMachine {
   constructor(sharedData) {
     this.currentState = null;
@@ -5,7 +6,6 @@ class StateMachine {
     this.states = {
       start: new StartState(this),
       playerName: new PlayerNameState(this),
-      clothingSelection: new ClothingSelectionState(this),
       didacticiel: new DidacticielState(this),
       init: new InitState(this),
       play: new PlayState(this),
@@ -69,7 +69,7 @@ class PlayerNameState {
     // Create input field and button for player name
     this.nameInput = createInput('');
     this.nameInput.attribute('placeholder', 'Enter Player Name');
-    this.nameInput.style('width', '600px');           // Set the width of the input
+    this.nameInput.style('width', '300px');           // Set the width of the input
     this.nameInput.style('height', '30px');           // Give some height to the input for padding
     this.nameInput.style('border', 'none');           // Remove the default border
     this.nameInput.style('border-bottom', '5px solid white'); // Add only the bottom white border
@@ -84,7 +84,7 @@ class PlayerNameState {
       const playerName = this.nameInput.value();
       if (playerName.trim() !== "") {
         this.stateMachine.sharedData.Player1.name = playerName; // Save player name
-        this.stateMachine.changeState("clothingSelection");  // Proceed to clothing selection
+        this.stateMachine.changeState("didacticiel");  // Proceed to clothing selection
         this.nameInput.remove();  // Remove input field
         this.startButton.remove();  // Remove button
       }
@@ -106,127 +106,6 @@ class PlayerNameState {
   }
 }
 
-// Clothing Selection State
-class ClothingSelectionState {
-  constructor(stateMachine) {
-    this.stateMachine = stateMachine;
-    this.choices = [];
-    this.hoverIndex = -1;
-    this.selectedColors = null;
-    this.nextButton = null;  // Button to proceed to next state
-
-    // Define color choices
-    const colors = [
-      { top: '#FFFFFF', bottom: '#FFFF00' },
-      { top: '#FFC0CB', bottom: '#800080' },
-      { top: '#FF0000', bottom: '#000000' },
-      { top: '#808080', bottom: '#000000' },
-      { top: '#0000FF', bottom: '#000080' },
-      { top: '#008000', bottom: '#FFFFFF' },
-    ];
-
-    // Create choice objects
-    for (let i = 0; i < 6; i++) {
-      this.choices.push({
-        x: 150 + (i % 3) * 150,
-        y: 225 + Math.floor(i / 3) * 125,
-        colors: colors[i],
-        hover: false,
-      });
-    }
-
-    // Bind mouseMoved and mousePressed handlers to 'this' context
-    this.boundMouseMoved = this.mouseMoved.bind(this);
-    this.boundMousePressed = this.mousePressed.bind(this);
-  }
-
-  setup() {
-    console.log("Entered Clothing Selection State");
-
-    // Create the "Next" button but hide it initially until a color is selected
-    this.nextButton = createButton('Next');
-    this.nextButton.style('font-size', '20px');
-    this.nextButton.style('padding', '10px 20px');
-    this.nextButton.position(this.stateMachine.sharedData.WIDTH / 2 - 50, this.stateMachine.sharedData.HEIGHT * 0.6);
-    this.nextButton.hide();  // Hide until a color is selected
-
-    // Handle the button press to go to the next state
-    this.nextButton.mousePressed(() => {
-      this.stateMachine.changeState("didacticiel");
-      this.nextButton.remove();  // Remove the button once transitioning
-    });
-
-    // Register mouse event listeners
-    window.addEventListener('mousemove', this.boundMouseMoved);
-    window.addEventListener('mousedown', this.boundMousePressed);
-  }
-
-  draw() {
-    background('#006400');
-    textSize(40);
-    fill('#FFFFFF');
-    text('PONG ML', width / 2, 20);
-
-    textSize(20);
-    fill('#FFA500');
-    text(`select ${this.stateMachine.sharedData.Player1.name} clothing`.toUpperCase(), width / 2, 100);
-
-    rectMode(CENTER);
-    for (let choice of this.choices) {
-      let yOffset = choice.hover ? -10 : 0;
-
-      fill(choice.colors.top);
-      rect(choice.x, choice.y + yOffset - 25, 80, 50);
-
-      fill(choice.colors.bottom);
-      rect(choice.x, choice.y + yOffset + 25, 80, 50);
-    }
-
-    // If a color is selected, display it
-    if (this.selectedColors) {
-      fill(255);
-      textSize(24);
-      text(`Selected Top: ${this.selectedColors.top}`, width / 2, height - 100);
-      text(`Selected Bottom: ${this.selectedColors.bottom}`, width / 2, height - 70);
-    }
-  }
-
-  mouseMoved(event) {
-    const { clientX: x, clientY: y } = event;
-    for (let choice of this.choices) {
-      let d = dist(x, y, choice.x, choice.y);
-      choice.hover = d < 50;
-    }
-  }
-
-  mousePressed(event) {
-    const { clientX: x, clientY: y } = event;
-    for (let i = 0; i < this.choices.length; i++) {
-      let choice = this.choices[i];
-      let d = dist(x, y, choice.x, choice.y);
-      if (d < 50) {
-        // Set the selected color and display the "Next" button
-        this.selectedColors = choice.colors;
-        this.stateMachine.sharedData.selectedColors = choice.colors;
-        this.nextButton.show();  // Show the "Next" button when a color is selected
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // Exit method to clean up when leaving the state
-  exit() {
-    console.log("Exiting Clothing Selection State");
-    window.removeEventListener('mousemove', this.boundMouseMoved);
-    window.removeEventListener('mousedown', this.boundMousePressed);
-    if (this.nextButton) {
-      this.nextButton.remove();  // Ensure the button is removed when exiting the state
-    }
-  }
-}
-
-
 // Didacticiel State
 class DidacticielState {
   constructor(stateMachine) {
@@ -241,24 +120,26 @@ class DidacticielState {
   }
 
   draw() {
+
     background(this.stateMachine.sharedData.field); 
     this.stateMachine.sharedData.Player1.draw();
-    textSize(14);
+
+    //didacticiels text
+    
     fill("#00513A")
+    textSize(18);
     text("Game didacticiel", ((this.stateMachine.sharedData.WIDTH / 2)), 20);
-    text("Raise your left hand to push down the paddle", ((this.stateMachine.sharedData.WIDTH / 3)), 40);
-    text("Raise your right hand to push up the paddle", ((this.stateMachine.sharedData.WIDTH / 3)), 60);
-    text("Remove your both hands to stay neutral", ((this.stateMachine.sharedData.WIDTH / 3)), 80);
-    text("hands: " + this.stateMachine.sharedData.handDetection.hands, ((this.stateMachine.sharedData.WIDTH / 3)), this.stateMachine.sharedData.HEIGHT - 150);
-    text("Press 'S' when ready to Start", ((this.stateMachine.sharedData.WIDTH / 3)), this.stateMachine.sharedData.HEIGHT - 100);
+    text("Raise your left hand to push down the paddle", ((this.stateMachine.sharedData.WIDTH / 2)), 40);
+    text("Raise your right hand to push up the paddle", ((this.stateMachine.sharedData.WIDTH / 2)), 60);
+    text("Remove your both hands to stay neutral", ((this.stateMachine.sharedData.WIDTH / 2)), 80);
+    text("hands: " + this.stateMachine.sharedData.handDetection.hands, ((this.stateMachine.sharedData.WIDTH / 2)), this.stateMachine.sharedData.HEIGHT - 150);
+    text("Press 'Enter' when ready to Start", ((this.stateMachine.sharedData.WIDTH / 2)), this.stateMachine.sharedData.HEIGHT - 100);
 
-    if (this.stateMachine.sharedData.handDetection.hands.toLowerCase() === "right") {
-      this.stateMachine.sharedData.Player1.move_up();
-    } else if (this.stateMachine.sharedData.handDetection.hands.toLowerCase() === "left") {
-      this.stateMachine.sharedData.Player1.move_down(this.stateMachine.sharedData.HEIGHT);
-    }
+    //hand detection
+    this.stateMachine.sharedData.detectHandMovement()
 
-    if (keyIsPressed && key === "s") {
+    //go to the game step
+    if (keyIsPressed && keyCode === ENTER) {
       this.stateMachine.changeState("init");
     }
   }
@@ -283,9 +164,9 @@ class InitState {
     this.stateMachine.sharedData.Player2.draw();
     this.stateMachine.sharedData.ball.draw();
 
-    text("Press 'S' to Serve".toUpperCase(), ((this.stateMachine.sharedData.WIDTH / 2)), 20);
+    text("Press 'SPACE' to Serve".toUpperCase(), ((this.stateMachine.sharedData.WIDTH / 2)), 20);
 
-    if (keyIsPressed && key === "s") {
+    if (keyIsPressed && key === " ") {
       this.stateMachine.changeState("play");
     }
   }
@@ -295,6 +176,7 @@ class InitState {
 class PlayState {
   constructor(stateMachine) {
     this.stateMachine = stateMachine;
+    this.winningScore = 7
   }
 
   setup() {
@@ -302,44 +184,67 @@ class PlayState {
   }
 
   draw() {
-    background(this.stateMachine.sharedData.field);
+    // Destructure shared data for easier access
+    const { field, ball, Player1, Player2, WIDTH, HEIGHT, model } = this.stateMachine.sharedData;
+    
+    background(field);
 
-    this.stateMachine.sharedData.ball.edges();
-    this.stateMachine.sharedData.ball.collides(this.stateMachine.sharedData.Player1);
-    this.stateMachine.sharedData.ball.collides(this.stateMachine.sharedData.Player2);
-    this.stateMachine.sharedData.ball.update();
-    this.stateMachine.sharedData.ball.draw();
-    this.stateMachine.sharedData.Player1.draw();
-    this.stateMachine.sharedData.Player2.draw();
+    // Update and draw ball
+    ball.edges();
+    ball.collides(Player1);
+    ball.collides(Player2);
+    ball.update();
+    ball.draw();
 
-    if (this.stateMachine.sharedData.ball.point_scored()) {
-      
-      if (this.stateMachine.sharedData.ball.x < 0) {
+    // Draw paddles
+    Player1.draw();
+    Player2.draw();
+
+    // Player1 movement based on hand detection
+    //this.stateMachine.sharedData.detectHandMovment();
+
+    // Player1 movement using keys
+    if (keyIsDown(65)) { // 'A' key (Move Player2 up)
+      Player1.move_up();
+    }
+
+    if (keyIsDown(81)) { // 'Q' key (Move Player2 down)
+      Player1.move_down(HEIGHT);
+    }
+
+    // Player2 CPU movement using keys
+    if (ball.y < Player2.y) {
+      Player2.move_up();
+    } else if (ball.y > Player2.y + Player2.height) {
+      Player2.move_down(HEIGHT);
+    }
+    // Check if a point has been scored
+    if (ball.point_scored()) {
+      if (ball.x < 0) {
         this.stateMachine.sharedData.player2_score++;
-        this.stateMachine.sharedData.winner = "player2"
-      } else if (this.stateMachine.sharedData.ball.x > this.stateMachine.sharedData.WIDTH) {
+        this.stateMachine.sharedData.winner = "player2";
+      } else if (ball.x > WIDTH) {
         this.stateMachine.sharedData.player1_score++;
-        this.stateMachine.sharedData.winner = "player1"
+        this.stateMachine.sharedData.winner = "player1";
       }
 
-      // Check for winning condition (first to 7 points)
-      if (this.stateMachine.sharedData.player1_score >= 7) {
-        
+      // Check for winning condition
+      if (this.stateMachine.sharedData.player1_score >= this.winningScore) {
         // Player 1 wins
-        this.stateMachine.sharedData.winner = this.stateMachine.sharedData.Player1.name
+        this.stateMachine.sharedData.winner = Player1.name;
         this.stateMachine.changeState("setAndMatch");
-      } else if (this.stateMachine.sharedData.player2_score >= 7) {
-
+      } else if (this.stateMachine.sharedData.player2_score >= this.winningScore) {
         // Player 2 wins
-        this.stateMachine.sharedData.winner = this.stateMachine.sharedData.Player2.name
+        this.stateMachine.sharedData.winner = Player2.name;
         this.stateMachine.changeState("setAndMatch");
       } else {
-        // Otherwise, continue to serve state for the next point
+        // Continue to next serve if no one has won yet
         this.stateMachine.changeState("serve");
       }
     }
   }
 }
+
 
 
 // Serve State
@@ -352,6 +257,8 @@ class ServeState {
     console.log("Entered Serve State");
     let winner = this.stateMachine.sharedData.winner; 
     this.stateMachine.sharedData.ball.reset(winner);
+    this.stateMachine.sharedData.Player1.initYPosition()
+    this.stateMachine.sharedData.Player2.initYPosition()
 
   }
 
@@ -360,8 +267,8 @@ class ServeState {
     text("Press SPACE to serve", (this.stateMachine.sharedData.WIDTH / 2 ), 80);
 
     textSize(60);
-    text(this.stateMachine.sharedData.player1_score, this.stateMachine.sharedData.WIDTH / 3, 150);
-    text(this.stateMachine.sharedData.player2_score, this.stateMachine.sharedData.WIDTH - (this.stateMachine.sharedData.WIDTH / 3), 150);
+    text(this.stateMachine.sharedData.player1_score, (this.stateMachine.sharedData.WIDTH / 3), 100);
+    text(this.stateMachine.sharedData.player2_score, (this.stateMachine.sharedData.WIDTH - (this.stateMachine.sharedData.WIDTH / 3)), 100);
 
     this.stateMachine.sharedData.Player1.draw();
     this.stateMachine.sharedData.Player2.draw();
@@ -377,28 +284,34 @@ class ServeState {
 class SetAndMatchState {
   constructor(stateMachine) {
     this.stateMachine = stateMachine;
+    this.isDataCollectionComplete = false; // Flag to check if data collection is done
   }
 
   setup() {
     console.log("Entered Set and Match State");
   }
 
+  
+
   draw() {
     textSize(20);
-    text(this.stateMachine.sharedData.winner + " is the Winner!", (this.stateMachine.sharedData.WIDTH / 2 ), 50);
+    text(this.stateMachine.sharedData.winner + " is the Winner!", (this.stateMachine.sharedData.WIDTH / 2), 50);
 
     textSize(48);
-    text(this.stateMachine.sharedData.player1_score, this.stateMachine.sharedData.WIDTH / 2, 100);
+    text(this.stateMachine.sharedData.player1_score, this.stateMachine.sharedData.WIDTH / 3, 100);
     text(this.stateMachine.sharedData.player2_score, this.stateMachine.sharedData.WIDTH - (this.stateMachine.sharedData.WIDTH / 3), 100);
 
     textSize(32);
     text("press SPACE to restart", this.stateMachine.sharedData.WIDTH / 2, this.stateMachine.sharedData.HEIGHT - 100);
 
+    // Check if the key is pressed and the data collection is complete
     if (keyIsPressed && key === " ") {
       this.stateMachine.changeState("init");
     }
+
   }
 }
+
 
 
 
