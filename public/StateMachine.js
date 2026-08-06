@@ -159,7 +159,12 @@ class InitState {
   setup() {
     this.stateMachine.sharedData.player1_score = 0;
     this.stateMachine.sharedData.player2_score = 0;
-    this.stateMachine.sharedData.ball.reset("player1"); 
+    this.stateMachine.sharedData.ball.reset("player1");
+    // A rematch (Set&Match -> Init) used to leave both paddles wherever they
+    // were when the previous match ended, instead of starting the new match
+    // from a clean position like the very first game does.
+    this.stateMachine.sharedData.Player1.initYPosition();
+    this.stateMachine.sharedData.Player2.initYPosition();
     console.log("Entered Init State");
   }
 
@@ -303,16 +308,18 @@ class ServeState {
 class SetAndMatchState {
   constructor(stateMachine) {
     this.stateMachine = stateMachine;
-    this.isDataCollectionComplete = false; // Flag to check if data collection is done
   }
 
   setup() {
     console.log("Entered Set and Match State");
   }
 
-  
-
   draw() {
+    // Unlike the other states, this one used to skip clearing the canvas,
+    // so the win screen was drawn on top of the frozen last frame of play.
+    background(this.stateMachine.sharedData.field);
+
+    fill(255);
     textSize(20);
     text(this.stateMachine.sharedData.winner + " is the Winner!", (this.stateMachine.sharedData.WIDTH / 2), 50);
 
@@ -323,7 +330,6 @@ class SetAndMatchState {
     textSize(32);
     text("press SPACE to restart", this.stateMachine.sharedData.WIDTH / 2, this.stateMachine.sharedData.HEIGHT - 100);
 
-    // Check if the key is pressed and the data collection is complete
     if (keyIsPressed && key === " ") {
       this.stateMachine.changeState("init");
     }
