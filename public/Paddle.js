@@ -1,5 +1,5 @@
 class Paddle {
-    constructor(x, y) {
+    constructor(x, y, side = "left") {
       this.x = x;
       this.y = y;
       this.init_y = y
@@ -7,6 +7,7 @@ class Paddle {
       this.height = 50;
       this.speed = 10;
       this.name = "CPU"
+      this.side = side; // "left" or "right" - which side of the court this paddle defends
     }
   
     move_up() {
@@ -48,6 +49,9 @@ class Paddle {
       this.y = this.init_y;
   }
   }
-  
-    
+
+// Export for Node-based unit tests; harmless in the browser (module is undefined there).
+if (typeof module !== "undefined") {
+  module.exports = Paddle;
+}
 

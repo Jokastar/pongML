@@ -129,10 +129,15 @@ class DidacticielState {
     fill("#00513A")
     textSize(18);
     text("Game didacticiel", ((this.stateMachine.sharedData.WIDTH / 2)), 20);
-    text("Raise your left hand to push down the paddle", ((this.stateMachine.sharedData.WIDTH / 2)), 40);
-    text("Raise your right hand to push up the paddle", ((this.stateMachine.sharedData.WIDTH / 2)), 60);
-    text("Remove your both hands to stay neutral", ((this.stateMachine.sharedData.WIDTH / 2)), 80);
-    text("hands: " + this.stateMachine.sharedData.handDetection.hands, ((this.stateMachine.sharedData.WIDTH / 2)), this.stateMachine.sharedData.HEIGHT - 150);
+
+    if (this.stateMachine.sharedData.cameraAvailable) {
+      text("Raise your left hand to push down the paddle", ((this.stateMachine.sharedData.WIDTH / 2)), 40);
+      text("Raise your right hand to push up the paddle", ((this.stateMachine.sharedData.WIDTH / 2)), 60);
+      text("Remove your both hands to stay neutral", ((this.stateMachine.sharedData.WIDTH / 2)), 80);
+      text("hands: " + this.stateMachine.sharedData.handDetection.hands, ((this.stateMachine.sharedData.WIDTH / 2)), this.stateMachine.sharedData.HEIGHT - 150);
+    } else {
+      text("Camera unavailable: use 'A' to push up and 'Q' to push down", ((this.stateMachine.sharedData.WIDTH / 2)), 40);
+    }
     text("Press 'Enter' when ready to Start", ((this.stateMachine.sharedData.WIDTH / 2)), this.stateMachine.sharedData.HEIGHT - 100);
 
     //hand detection
@@ -176,17 +181,25 @@ class InitState {
 class PlayState {
   constructor(stateMachine) {
     this.stateMachine = stateMachine;
-    this.winningScore = 7
+    this.winningScore = 7;
+
+    // CPU "AI" imperfection: instead of tracking the ball with perfect,
+    // instant precision every frame, it only re-aims periodically and aims
+    // at a slightly offset target, so it's beatable and feels less robotic.
+    this.cpuReactionFrames = 10;
+    this.cpuErrorMargin = 40;
+    this.cpuTargetY = null;
   }
 
   setup() {
     console.log("Entered Play State");
+    this.cpuTargetY = null;
   }
 
   draw() {
     // Destructure shared data for easier access
-    const { field, ball, Player1, Player2, WIDTH, HEIGHT, model } = this.stateMachine.sharedData;
-    
+    const { field, ball, Player1, Player2, WIDTH, HEIGHT } = this.stateMachine.sharedData;
+
     background(field);
 
     // Update and draw ball
@@ -200,22 +213,28 @@ class PlayState {
     Player1.draw();
     Player2.draw();
 
-    // Player1 movement based on hand detection
-    //this.stateMachine.sharedData.detectHandMovment();
+    // Player1 movement based on hand detection (falls back gracefully if no camera)
+    this.stateMachine.sharedData.detectHandMovement();
 
-    // Player1 movement using keys
-    if (keyIsDown(65)) { // 'A' key (Move Player2 up)
+    // Player1 movement using keys (works alongside hand detection)
+    if (keyIsDown(65)) { // 'A' key (Move Player1 up)
       Player1.move_up();
     }
 
-    if (keyIsDown(81)) { // 'Q' key (Move Player2 down)
+    if (keyIsDown(81)) { // 'Q' key (Move Player1 down)
       Player1.move_down(HEIGHT);
     }
 
-    // Player2 CPU movement using keys
-    if (ball.y < Player2.y) {
+    // Player2 CPU movement: re-aims every few frames with some error margin
+    // instead of snapping to the ball's exact position on every single frame.
+    if (this.cpuTargetY === null || frameCount % this.cpuReactionFrames === 0) {
+      const offset = random(-this.cpuErrorMargin, this.cpuErrorMargin);
+      this.cpuTargetY = ball.y + offset;
+    }
+
+    if (this.cpuTargetY < Player2.y) {
       Player2.move_up();
-    } else if (ball.y > Player2.y + Player2.height) {
+    } else if (this.cpuTargetY > Player2.y + Player2.height) {
       Player2.move_down(HEIGHT);
     }
     // Check if a point has been scored
