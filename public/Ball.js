@@ -35,15 +35,15 @@ class Ball{
             return  ; 
         }
 
-        // Handle collision with Player1
-        if (paddle.x < 1) {
+        // Handle collision with a left-side paddle
+        if (paddle.side === "left") {
             this.x = paddle.x + paddle.width;
             this.dx *= -1.05;
 
           }
-    
-          // Handle collision with Player2
-          if (paddle.x > 1) {
+
+          // Handle collision with a right-side paddle
+          if (paddle.side === "right") {
             this.x = paddle.x - this.width;
             this.dx *= -1.05;
 
@@ -82,8 +82,13 @@ class Ball{
 
     draw(){
         rectMode(CORNER)
-        
-        rect(this.x, this.y, this.width, this.height); 
+
+        rect(this.x, this.y, this.width, this.height);
     }
 
+}
+
+// Export for Node-based unit tests; harmless in the browser (module is undefined there).
+if (typeof module !== "undefined") {
+  module.exports = Ball;
 }
